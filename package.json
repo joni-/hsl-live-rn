@@ -17,6 +17,7 @@
     "mqtt": "^2.9.0",
     "react": "16.0.0-alpha.6",
     "react-native": "https://github.com/expo/react-native/archive/sdk-17.0.0.tar.gz",
+    "react-native-paho-mqtt": "^0.0.8",
     "react-redux": "^5.0.5",
     "reactotron-react-native": "^1.11.1",
     "reactotron-redux-saga": "^1.11.1",
