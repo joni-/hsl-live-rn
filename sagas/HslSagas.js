@@ -9,9 +9,9 @@ import HslActions, { HslTypes } from '../redux/HslRedux';
 const API_URL = 'ws://mqtt.hsl.fi:1883/';
 
 function subscribe(client) {
-  //client.subscribe("/hfp/journey/tram/#");
-  //client.subscribe("/hfp/journey/bus/#");
-  client.subscribe("/hfp/journey/subway/#");
+  client.subscribe("/hfp/journey/tram/#");
+  client.subscribe("/hfp/journey/bus/#");
+  //client.subscribe("/hfp/journey/subway/#");
   //client.subscribe("/hfp/journey/rail/#");
   //client.subscribe("/hfp/journey/ferry/#");
 
@@ -30,7 +30,12 @@ function* read(client) {
   const channel = yield call(subscribe, client);
   while (true) {
     let { topic, message } = yield take(channel);
-    yield put(HslActions.handle(topic, message));
+
+    if (topic.startsWith('/hfp/journey/bus')) {
+      yield put(HslActions.handleBus(topic, message));
+    } else if (topic.startsWith('/hfp/journey/tram')) {
+      yield put(HslActions.handleTram(topic, message));
+    }
   }
 }
 

@@ -6,7 +6,8 @@ const { Types, Creators } = createActions({
   stop: null,
   streamStarted: null,
   streamStopped: null,
-  handle: ['topic', 'message']
+  handleBus: ['topic', 'message'],
+  handleTram: ['topic', 'message']
 });
 
 export const HslTypes = Types;
@@ -16,7 +17,8 @@ export default Creators;
 
 const INITIAL_STATE = {
   streaming: false,
-  busses: []
+  busses: {},
+  trams: {}
 };
 
 // -- reducers
@@ -31,8 +33,44 @@ const stop = (state = INITIAL_STATE) => ({
   streaming: false
 })
 
-const handle = (state = INITIAL_STATE, { topic, message }) => {
-  return state;
+const handleBus = (state = INITIAL_STATE, { topic, message }) => {
+  const hslObject = message.VP;
+  const latitude = hslObject.lat;
+  const longitude = hslObject.long;
+  const line = hslObject.desi;
+  const vehicleId = hslObject.veh;
+
+  return {
+    ...state,
+    busses: {
+      ...state.busses,
+      [vehicleId]: {
+        longitude,
+        latitude,
+        line
+      }
+    }
+  };
+}
+
+const handleTram = (state = INITIAL_STATE, { topic, message }) => {
+  const hslObject = message.VP;
+  const latitude = hslObject.lat;
+  const longitude = hslObject.long;
+  const line = hslObject.desi;
+  const vehicleId = hslObject.veh;
+
+  return {
+    ...state,
+    trams: {
+      ...state.trams,
+      [vehicleId]: {
+        longitude,
+        latitude,
+        line
+      }
+    }
+  };
 }
 
 // -- tie up the reducers to action types
@@ -40,7 +78,8 @@ const handle = (state = INITIAL_STATE, { topic, message }) => {
 const HANDLERS = {
   [Types.STREAM_STARTED]: start,
   [Types.STREAM_STOPPED]: stop,
-  [Types.HANDLE]: handle
+  [Types.HANDLE_BUS]: handleBus,
+  [Types.HANDLE_TRAM]: handleTram
 };
 
 export const reducer = createReducer(INITIAL_STATE, HANDLERS);
