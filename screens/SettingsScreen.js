@@ -13,7 +13,7 @@ const switchStyle = {
   justifyContent: 'space-between'
 };
 
-const VehiclyTypeSwitch = ({ label, mode, onChange }) => (
+const VehicleTypeSwitch = ({ label, mode, onChange }) => (
   <View style={switchStyle}>
     <Text>{label}</Text>
     <Switch value={mode} onValueChange={onChange} />
@@ -23,7 +23,7 @@ const VehiclyTypeSwitch = ({ label, mode, onChange }) => (
 class SettingsScreen extends React.Component {
   static route = {
     navigationBar: {
-      title: 'exp.json',
+      title: 'Settings',
     },
   };
 
@@ -40,15 +40,16 @@ class SettingsScreen extends React.Component {
       toggleTrain,
       toggleFerry
     } = this.props;
+
     return (
       <ScrollView
         style={styles.container}
         contentContainerStyle={this.props.route.getContentContainerStyle()}>
-        <VehiclyTypeSwitch label="Bus" mode={bus} onChange={toggleBus} />
-        <VehiclyTypeSwitch label="Tram" mode={tram} onChange={toggleTram} />
-        <VehiclyTypeSwitch label="Subway" mode={subway} onChange={toggleSubway} />
-        <VehiclyTypeSwitch label="Train" mode={train} onChange={toggleTrain} />
-        <VehiclyTypeSwitch label="Ferry" mode={ferry} onChange={toggleFerry} />
+        <VehicleTypeSwitch label="Bus" mode={bus} onChange={toggleBus} />
+        <VehicleTypeSwitch label="Tram" mode={tram} onChange={toggleTram} />
+        <VehicleTypeSwitch label="Subway" mode={subway} onChange={toggleSubway} />
+        <VehicleTypeSwitch label="Train" mode={train} onChange={toggleTrain} />
+        <VehicleTypeSwitch label="Ferry" mode={ferry} onChange={toggleFerry} />
       </ScrollView>
     );
   }

@@ -19,48 +19,47 @@ const VehicleMarker = ({ icon, color, text }) => (
   </View>
 );
 
-const BusMarker = (props) =>
-  <VehicleMarker icon="directions-bus" color="blue" text={props.line} />
-
-const TramMarker = (props) =>
-  <VehicleMarker icon="tram" color="green" text={props.line} />
+const buildMarkers = (vehicles, icon, color) => Object.keys(vehicles).map((id) => {
+  const vehicle = vehicles[id];
+  const coordinate = {
+    latitude: vehicle.latitude,
+    longitude: vehicle.longitude
+  };
+  return (
+    <MapView.Marker key={id} coordinate={coordinate}>
+      <VehicleMarker text={vehicle.line} icon={icon} color={color} />
+    </MapView.Marker>
+  );
+});
 
 class MapScreen extends React.Component {
   render() {
-    if (!this.props.streaming) {
-      this.props.start();
+    const {
+      streaming,
+      start,
+      busses,
+      trams,
+      subways,
+      trains,
+      ferries,
+      showBus,
+      showTram,
+      showSubway,
+      showTrain,
+      showFerry,
+    } = this.props;
+
+    if (!streaming) {
+      start();
     }
-
-    const busMarkers = Object.keys(this.props.busses).map((id) => {
-      const bus = this.props.busses[id];
-      const coordinate = {
-        latitude: bus.latitude,
-        longitude: bus.longitude
-      };
-      return (
-        <MapView.Marker key={id} coordinate={coordinate}>
-          <BusMarker line={bus.line} />
-        </MapView.Marker>
-      );
-    })
-
-    const tramMarkers = Object.keys(this.props.trams).map((id) => {
-      const tram = this.props.trams[id];
-      const coordinate = {
-        latitude: tram.latitude,
-        longitude: tram.longitude
-      };
-      return (
-        <MapView.Marker key={id} coordinate={coordinate}>
-          <TramMarker line={tram.line} />
-        </MapView.Marker>
-      );
-    })
 
     return (
       <MapView style={{ flex: 1 }}>
-        {busMarkers}
-        {tramMarkers}
+        {showBus && buildMarkers(busses, 'directions-bus', 'blue')}
+        {showTram && buildMarkers(trams, 'tram', 'green')}
+        {showSubway && buildMarkers(subways, 'directions-subway', 'red')}
+        {showTrain && buildMarkers(trains, 'directions-railway', 'orange')}
+        {showFerry && buildMarkers(ferries, 'directions-boat', 'blue')}
       </MapView>
     );
   }
@@ -69,7 +68,18 @@ class MapScreen extends React.Component {
 const mapStateToProps = (state) => ({
   streaming: state.hsl.streaming,
   busses: state.hsl.busses,
-  trams: state.hsl.trams
+  trams: state.hsl.trams,
+  subways: state.hsl.subways,
+  trains: state.hsl.trains,
+  ferries: state.hsl.ferries,
+  subways: state.hsl.subways,
+  trains: state.hsl.trains,
+  ferries: state.hsl.ferries,
+  showBus: state.filters.bus,
+  showTram: state.filters.tram,
+  showSubway: state.filters.subway,
+  showTrain: state.filters.train,
+  showFerry: state.filters.ferry
 });
 
 const mapDispatchToProps = (dispatch) => ({

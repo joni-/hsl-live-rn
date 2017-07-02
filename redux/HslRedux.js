@@ -7,7 +7,10 @@ const { Types, Creators } = createActions({
   streamStarted: null,
   streamStopped: null,
   handleBus: ['topic', 'message'],
-  handleTram: ['topic', 'message']
+  handleTram: ['topic', 'message'],
+  handleSubway: ['topic', 'message'],
+  handleTrain: ['topic', 'message'],
+  handleFerry: ['topic', 'message'],
 });
 
 export const HslTypes = Types;
@@ -18,7 +21,10 @@ export default Creators;
 const INITIAL_STATE = {
   streaming: false,
   busses: {},
-  trams: {}
+  trams: {},
+  subways: {},
+  trains: {},
+  ferries: {}
 };
 
 // -- reducers
@@ -33,7 +39,7 @@ const stop = (state = INITIAL_STATE) => ({
   streaming: false
 })
 
-const handleBus = (state = INITIAL_STATE, { topic, message }) => {
+const handleVehicleChanges = (vehicle, state, { topic, message }) => {
   const hslObject = message.VP;
   const latitude = hslObject.lat;
   const longitude = hslObject.long;
@@ -42,8 +48,8 @@ const handleBus = (state = INITIAL_STATE, { topic, message }) => {
 
   return {
     ...state,
-    busses: {
-      ...state.busses,
+    [vehicle]: {
+      ...state[vehicle],
       [vehicleId]: {
         longitude,
         latitude,
@@ -53,25 +59,20 @@ const handleBus = (state = INITIAL_STATE, { topic, message }) => {
   };
 }
 
-const handleTram = (state = INITIAL_STATE, { topic, message }) => {
-  const hslObject = message.VP;
-  const latitude = hslObject.lat;
-  const longitude = hslObject.long;
-  const line = hslObject.desi;
-  const vehicleId = hslObject.veh;
+const handleBus = (state = INITIAL_STATE, action) =>
+  handleVehicleChanges('busses', state, action);
 
-  return {
-    ...state,
-    trams: {
-      ...state.trams,
-      [vehicleId]: {
-        longitude,
-        latitude,
-        line
-      }
-    }
-  };
-}
+const handleTram = (state = INITIAL_STATE, action) =>
+  handleVehicleChanges('trams', state, action)
+
+const handleSubway = (state = INITIAL_STATE, action) =>
+  handleVehicleChanges('subways', state, action);
+
+const handleTrain = (state = INITIAL_STATE, action) =>
+  handleVehicleChanges('trains', state, action);
+
+const handleFerry = (state = INITIAL_STATE, action) =>
+  handleVehicleChanges('ferries', state, action);
 
 // -- tie up the reducers to action types
 
@@ -79,7 +80,10 @@ const HANDLERS = {
   [Types.STREAM_STARTED]: start,
   [Types.STREAM_STOPPED]: stop,
   [Types.HANDLE_BUS]: handleBus,
-  [Types.HANDLE_TRAM]: handleTram
+  [Types.HANDLE_TRAM]: handleTram,
+  [Types.HANDLE_SUBWAY]: handleSubway,
+  [Types.HANDLE_TRAIN]: handleTrain,
+  [Types.HANDLE_FERRY]: handleFerry,
 };
 
 export const reducer = createReducer(INITIAL_STATE, HANDLERS);

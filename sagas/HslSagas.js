@@ -11,9 +11,9 @@ const API_URL = 'ws://mqtt.hsl.fi:1883/';
 function subscribe(client) {
   client.subscribe("/hfp/journey/tram/#");
   client.subscribe("/hfp/journey/bus/#");
-  //client.subscribe("/hfp/journey/subway/#");
-  //client.subscribe("/hfp/journey/rail/#");
-  //client.subscribe("/hfp/journey/ferry/#");
+  client.subscribe("/hfp/journey/subway/#");
+  client.subscribe("/hfp/journey/rail/#");
+  client.subscribe("/hfp/journey/ferry/#");
 
   return eventChannel((emit) => {
     client.on('messageReceived', (message) => {
@@ -35,6 +35,12 @@ function* read(client) {
       yield put(HslActions.handleBus(topic, message));
     } else if (topic.startsWith('/hfp/journey/tram')) {
       yield put(HslActions.handleTram(topic, message));
+    } else if (topic.startsWith('/hfp/journey/subway')) {
+      yield put(HslActions.handleSubway(topic, message));
+    } else if (topic.startsWith('/hfp/journey/rail')) {
+      yield put(HslActions.handleTrain(topic, message));
+    } else if (topic.startsWith('/hfp/journey/ferry')) {
+      yield put(HslActions.handleFerry(topic, message));
     }
   }
 }
@@ -64,6 +70,7 @@ export function* startStreaming() {
 
   yield call(connect, client);
   const task = yield fork(handleIO, client);
+  yield put(HslActions.streamStarted());
 
   // Listen the socket until STOP action is received and then disconnect
   // from the socket.
