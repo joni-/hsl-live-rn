@@ -42,24 +42,22 @@ class MapScreen extends React.Component {
       subways,
       trains,
       ferries,
-      showBus,
-      showTram,
-      showSubway,
-      showTrain,
-      showFerry,
+      filters
     } = this.props;
 
     if (!streaming) {
-      start();
+      start(filters);
     }
+
+    const { bus, tram, subway, train, ferry } = filters;
 
     return (
       <MapView style={{ flex: 1 }}>
-        {showBus && buildMarkers(busses, 'directions-bus', 'blue')}
-        {showTram && buildMarkers(trams, 'tram', 'green')}
-        {showSubway && buildMarkers(subways, 'directions-subway', 'red')}
-        {showTrain && buildMarkers(trains, 'directions-railway', 'orange')}
-        {showFerry && buildMarkers(ferries, 'directions-boat', 'blue')}
+        {bus && buildMarkers(busses, 'directions-bus', 'blue')}
+        {tram && buildMarkers(trams, 'tram', 'green')}
+        {subway && buildMarkers(subways, 'directions-subway', 'red')}
+        {train && buildMarkers(trains, 'directions-railway', 'orange')}
+        {ferry && buildMarkers(ferries, 'directions-boat', 'blue')}
       </MapView>
     );
   }
@@ -75,15 +73,11 @@ const mapStateToProps = (state) => ({
   subways: state.hsl.subways,
   trains: state.hsl.trains,
   ferries: state.hsl.ferries,
-  showBus: state.filters.bus,
-  showTram: state.filters.tram,
-  showSubway: state.filters.subway,
-  showTrain: state.filters.train,
-  showFerry: state.filters.ferry
+  filters: state.filters
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  start: () => dispatch(HslActions.start()),
+  start: (filters) => dispatch(HslActions.start(filters)),
   stop: () => dispatch(HslActions.stop())
 });
 

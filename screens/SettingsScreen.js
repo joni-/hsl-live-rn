@@ -29,17 +29,16 @@ class SettingsScreen extends React.Component {
 
   render() {
     const {
-      bus,
-      tram,
-      subway,
-      train,
-      ferry,
+      filters,
+      updateFilters,
       toggleBus,
       toggleTram,
       toggleSubway,
       toggleTrain,
       toggleFerry
     } = this.props;
+
+    const { bus, tram, subway, train, ferry } = filters;
 
     return (
       <ScrollView
@@ -56,11 +55,7 @@ class SettingsScreen extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-  bus: state.filters.bus,
-  tram: state.filters.tram,
-  subway: state.filters.subway,
-  train: state.filters.train,
-  ferry: state.filters.ferry
+  filters: state.filters
 });
 
 const mapDispatchToProps = (dispatch) => ({

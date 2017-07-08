@@ -2,7 +2,8 @@ import { createActions, createReducer } from 'reduxsauce';
 
 
 const { Types, Creators } = createActions({
-  start: null,
+  start: ['filters'],
+  update: ['filters'],
   stop: null,
   streamStarted: null,
   streamStopped: null,
@@ -11,6 +12,7 @@ const { Types, Creators } = createActions({
   handleSubway: ['topic', 'message'],
   handleTrain: ['topic', 'message'],
   handleFerry: ['topic', 'message'],
+  clear: ['vehicle']
 });
 
 export const HslTypes = Types;
@@ -74,6 +76,11 @@ const handleTrain = (state = INITIAL_STATE, action) =>
 const handleFerry = (state = INITIAL_STATE, action) =>
   handleVehicleChanges('ferries', state, action);
 
+const clear = (state = INITIAL_STATE, { vehicle }) => ({
+  ...state,
+  [vehicle]: {}
+});
+
 // -- tie up the reducers to action types
 
 const HANDLERS = {
@@ -84,6 +91,7 @@ const HANDLERS = {
   [Types.HANDLE_SUBWAY]: handleSubway,
   [Types.HANDLE_TRAIN]: handleTrain,
   [Types.HANDLE_FERRY]: handleFerry,
+  [Types.CLEAR]: clear
 };
 
 export const reducer = createReducer(INITIAL_STATE, HANDLERS);

@@ -4,16 +4,32 @@ import { delay } from 'redux-saga'
 import { Client, Message } from 'react-native-paho-mqtt';
 
 import HslActions, { HslTypes } from '../redux/HslRedux';
+import FilterActions from '../redux/FilterRedux';
 
 
 const API_URL = 'ws://mqtt.hsl.fi:1883/';
+let client = null;
 
-function subscribe(client) {
-  client.subscribe("/hfp/journey/tram/#");
-  client.subscribe("/hfp/journey/bus/#");
-  client.subscribe("/hfp/journey/subway/#");
-  client.subscribe("/hfp/journey/rail/#");
-  client.subscribe("/hfp/journey/ferry/#");
+function subscribe(client, filters) {
+  if (filters.bus) {
+    client.subscribe("/hfp/journey/bus/#");
+  }
+
+  if (filters.tram) {
+    client.subscribe("/hfp/journey/tram/#");
+  }
+
+  if (filters.subway) {
+    client.subscribe("/hfp/journey/subway/#");
+  }
+
+  if (filters.train) {
+    client.subscribe("/hfp/journey/rail/#");
+  }
+
+  if (filters.ferry) {
+    client.subscribe("/hfp/journey/ferry/#");
+  }
 
   return eventChannel((emit) => {
     client.on('messageReceived', (message) => {
@@ -26,8 +42,8 @@ function subscribe(client) {
   });
 }
 
-function* read(client) {
-  const channel = yield call(subscribe, client);
+function* read(client, filters) {
+  const channel = yield call(subscribe, client, filters);
   while (true) {
     let { topic, message } = yield take(channel);
 
@@ -45,8 +61,8 @@ function* read(client) {
   }
 }
 
-function* handleIO(client) {
-  yield fork(read, client);
+function* handleIO(client, filters) {
+  yield fork(read, client, filters);
 }
 
 function connect(client) {
@@ -61,15 +77,15 @@ function disconnect(client) {
   });
 }
 
-export function* startStreaming() {
-  const client = new Client({
+export function* startStreaming({ filters }) {
+  client = new Client({
     uri: API_URL,
     clientId: 'HSL RN APP',
     storage: () => {}
   });
 
   yield call(connect, client);
-  const task = yield fork(handleIO, client);
+  const task = yield fork(handleIO, client, filters);
   yield put(HslActions.streamStarted());
 
   // Listen the socket until STOP action is received and then disconnect
@@ -79,3 +95,58 @@ export function* startStreaming() {
   yield call(disconnect, client);
 }
 
+
+export function* toggleBus({ mode }) {
+  if (! mode) {
+    client.unsubscribe("/hfp/journey/bus/#");
+    yield put(HslActions.clear('busses'));
+  } else {
+    client.subscribe("/hfp/journey/bus/#");
+  }
+
+  yield put(FilterActions.filtersUpdated('bus', mode));
+}
+
+export function* toggleTram({ mode }) {
+  if (! mode) {
+    client.unsubscribe("/hfp/journey/tram/#");
+    yield put(HslActions.clear('trams'));
+  } else {
+    client.subscribe("/hfp/journey/tram/#");
+  }
+
+  yield put(FilterActions.filtersUpdated('tram', mode));
+}
+
+export function* toggleSubway({ mode }) {
+  if (! mode) {
+    yield put(HslActions.clear('subways'));
+    client.unsubscribe("/hfp/journey/subway/#");
+  } else {
+    client.subscribe("/hfp/journey/subway/#");
+  }
+
+  yield put(FilterActions.filtersUpdated('subway', mode));
+}
+
+export function* toggleTrain({ mode }) {
+  if (! mode) {
+    yield put(HslActions.clear('trains'));
+    client.unsubscribe("/hfp/journey/rail/#");
+  } else {
+    client.subscribe("/hfp/journey/rail/#");
+  }
+
+  yield put(FilterActions.filtersUpdated('train', mode));
+}
+
+export function* toggleFerry({ mode }) {
+  if (! mode) {
+    yield put(HslActions.clear('ferries'));
+    client.unsubscribe("/hfp/journey/ferry/#");
+  } else {
+    client.subscribe("/hfp/journey/ferry/#");
+  }
+
+  yield put(FilterActions.filtersUpdated('ferry', mode));
+}
