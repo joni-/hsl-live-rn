@@ -10,26 +10,40 @@ import HslActions from '../redux/HslRedux';
 const markerStyle = {
   flex: 1,
   alignItems: 'center'
-}
+};
 
-const VehicleMarker = ({ icon, color, text }) => (
-  <View style={markerStyle}>
-    <Text>{text}</Text>
-    <MaterialIcons name={icon} size={24} color={color} />
-  </View>
-);
+class VehicleMarker extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    return this.props.vehicle !== nextProps.vehicle;
+  }
+
+  render() {
+    const { id, icon, color, vehicle } = this.props;
+    const coordinate = {
+      longitude: vehicle.longitude,
+      latitude: vehicle.latitude
+    };
+
+    return (
+      <MapView.Marker coordinate={coordinate}>
+        <View style={markerStyle}>
+          <Text>{vehicle.line}</Text>
+          <MaterialIcons name={icon} size={24} color={color} />
+        </View>
+      </MapView.Marker>
+    );
+  }
+}
 
 const buildMarkers = (vehicles, icon, color) => Object.keys(vehicles).map((id) => {
   const vehicle = vehicles[id];
-  const coordinate = {
-    latitude: vehicle.latitude,
-    longitude: vehicle.longitude
-  };
-  return (
-    <MapView.Marker key={id} coordinate={coordinate}>
-      <VehicleMarker text={vehicle.line} icon={icon} color={color} />
-    </MapView.Marker>
-  );
+  return <VehicleMarker
+    key={id}
+    id={id}
+    vehicle={vehicle}
+    icon={icon}
+    color={color}
+  />;
 });
 
 class MapScreen extends React.Component {

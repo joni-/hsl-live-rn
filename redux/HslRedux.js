@@ -1,4 +1,5 @@
 import { createActions, createReducer } from 'reduxsauce';
+import Immutable from 'seamless-immutable';
 
 
 const { Types, Creators } = createActions({
@@ -20,14 +21,14 @@ export default Creators;
 
 // -- initial state
 
-const INITIAL_STATE = {
+const INITIAL_STATE = Immutable({
   streaming: false,
-  busses: {},
-  trams: {},
-  subways: {},
-  trains: {},
-  ferries: {}
-};
+  busses: Immutable({}),
+  trams: Immutable({}),
+  subways: Immutable({}),
+  trains: Immutable({}),
+  ferries: Immutable({})
+});
 
 // -- reducers
 
@@ -48,17 +49,13 @@ const handleVehicleChanges = (vehicle, state, { topic, message }) => {
   const line = hslObject.desi;
   const vehicleId = hslObject.veh;
 
-  return {
-    ...state,
-    [vehicle]: {
-      ...state[vehicle],
-      [vehicleId]: {
-        longitude,
-        latitude,
-        line
-      }
-    }
-  };
+  const newVehicleObject = Immutable({
+    longitude,
+    latitude,
+    line
+  });
+
+  return Immutable.setIn(state, [vehicle, vehicleId], newVehicleObject);
 }
 
 const handleBus = (state = INITIAL_STATE, action) =>
@@ -76,10 +73,8 @@ const handleTrain = (state = INITIAL_STATE, action) =>
 const handleFerry = (state = INITIAL_STATE, action) =>
   handleVehicleChanges('ferries', state, action);
 
-const clear = (state = INITIAL_STATE, { vehicle }) => ({
-  ...state,
-  [vehicle]: {}
-});
+const clear = (state = INITIAL_STATE, { vehicle }) =>
+  Immutable.set(state, vehicle, Immutable({}));
 
 // -- tie up the reducers to action types
 
